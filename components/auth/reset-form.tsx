@@ -6,44 +6,39 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from 'zod'
 
 import { useState, useTransition } from "react"
-import { useSearchParams } from "next/navigation"
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
-import { LoginSchema } from "@/schemas"
+import { ResetSchema } from "@/schemas"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 
 import { FormError } from "../form-errors"
 import { FormSuccess } from "../form-success"
 
-import { login } from "@/actions/login"
-import Link from "next/link"
+import { reset } from "@/actions/reset"
 
-export const LoginForm = () => {
+export const ResetForm = () => {
     const [isPending, startTransition] = useTransition()
-    const searchParams = useSearchParams()
-    const callbackUrl = searchParams.get("callbackUrl")
-
-    const urlError = searchParams.get("error") === "OAuthAccountNotLinked" ? "Email already in use with different provider!" : ""
 
     const [error, setError] = useState<string | undefined>("")
     const [success, setSuccess] = useState<string | undefined>("")
 
-    const form = useForm<z.infer<typeof LoginSchema>>({
-        resolver: zodResolver(LoginSchema),
+    const form = useForm<z.infer<typeof ResetSchema>>({
+        resolver: zodResolver(ResetSchema),
         defaultValues: {
             email: '',
-            password: ''
         }
     })
 
-    const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+    const onSubmit = (values: z.infer<typeof ResetSchema>) => {
         // below you should use api to send your values to db
         setError("")
         setSuccess("")
 
+        console.log(values)
+
         startTransition(() => {
-            login(values, callbackUrl || undefined)
+            reset(values)
                 .then((data) => {
                     setError(data.error)
                     setSuccess(data.success)
@@ -53,10 +48,9 @@ export const LoginForm = () => {
     }
     return (
         <CardWrapper
-            headerLabel="Welcome back!"
-            backButtonLabel="Don't have an account?"
-            backButtonHref="/auth/register"
-            showSocial
+            headerLabel="Forgot your password?"
+            backButtonLabel="Back to login"
+            backButtonHref="/auth/login"
         >
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -79,41 +73,17 @@ export const LoginForm = () => {
                                 </FormItem>
                             )}
                         />
-                        <FormField 
-                            control={form.control}
-                            name="password"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel className="font-bold">Password</FormLabel>
-                                    <FormControl>
-                                        <Input 
-                                            {...field}
-                                            disabled={isPending} // to disable the input onSubmit
-                                            placeholder="******"
-                                            type="password"
-                                        />
-                                    </FormControl>
-                                    <Button
-                                        size="sm"
-                                        variant="link"
-                                        asChild
-                                        className="px-0 font-normal"
-                                    >
-                                        <Link href="/auth/reset">Forgot Password?</Link>
-                                    </Button>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+
                     </div>
-                    <FormError message={error || urlError}/>
+                    <FormError message={error}/>
                     <FormSuccess message={success} />
                     <Button 
                         type="submit" 
                         className="w-full" 
                         disabled={isPending} // to disable the input onSubmit
                     >
-                        Login</Button>
+                        Send reset email
+                    </Button>
                 </form>
             </Form>
         </CardWrapper>
