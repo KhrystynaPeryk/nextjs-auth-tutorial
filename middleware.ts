@@ -21,7 +21,7 @@ export default auth((req)=> {
 
     if (isAuthRoute) {
         if (isLoggedIn) {
-            return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
+            return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
         }
         return
     }
@@ -34,7 +34,7 @@ export default auth((req)=> {
         }
 
         const encodedCallbackUrl = encodeURIComponent(callbackUrl)
-        return NextResponse.redirect(new URL(`/auth/login?callbackUrl=${encodedCallbackUrl}`, nextUrl))
+        return Response.redirect(new URL(`/auth/login?callbackUrl=${encodedCallbackUrl}`, nextUrl))
     }
 
     return
